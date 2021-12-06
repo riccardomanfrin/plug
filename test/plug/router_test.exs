@@ -43,6 +43,10 @@ defmodule Plug.RouterTest do
       send_resp(conn, 200, id <> "--" <> List.last(conn.path_info))
     end
 
+    match "/fancy_upper_id/:Id" do
+      send_resp(conn, 200, conn.path_params["Id"] <> "--" <> List.last(conn.path_info))
+    end
+
     def handle_errors(conn, assigns) do
       # Custom call is always invoked before
       true = Process.get(:plug_forward_call)
@@ -372,6 +376,11 @@ defmodule Plug.RouterTest do
   test "dispatch with forwarding handles un-urlencoded path segments" do
     conn = call(Sample, conn(:get, "/nested/forward/fancy_id/+ANcgj1jZc9O+"))
     assert conn.resp_body == "+ANcgj1jZc9O+--+ANcgj1jZc9O+"
+  end
+
+  test "dispatch with param" do
+    conn = call(Sample, conn(:get, "/nested/forward/fancy_upper_id/%2BANcgj1jZc%2F9O%2B"))
+    assert conn.resp_body == "+ANcgj1jZc/9O+--%2BANcgj1jZc%2F9O%2B"
   end
 
   test "dispatch with forwarding modifies script_name" do
